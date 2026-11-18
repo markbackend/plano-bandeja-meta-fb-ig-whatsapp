@@ -1,0 +1,31 @@
+{
+  "nombre": "Bandeja única Messenger + Instagram + WhatsApp (Meta Graph API)",
+  "sirve_para": [
+    "Centralizar la atención de Facebook Messenger, Instagram Direct y WhatsApp en una sola bandeja web",
+    "Integrar los mensajes de Facebook e Instagram con WhatsApp Business (Cloud API)",
+    "Webhook único de Meta con verificación, firma y mensajes normalizados sin duplicados",
+    "Responder por el canal correcto respetando la ventana de 24 horas",
+    "Asignar conversaciones a agentes, notas internas y marcar como resueltas",
+    "Respuestas automáticas: bienvenida, fuera de horario y palabras clave",
+    "Avisar al equipo de mensajes nuevos por Telegram o webhook"
+  ],
+  "palabras_clave_workana": [
+    "integración facebook instagram whatsapp",
+    "centralizar mensajes",
+    "bandeja unificada",
+    "omnicanal",
+    "whatsapp cloud api",
+    "whatsapp business api",
+    "messenger api",
+    "instagram direct api",
+    "meta graph api",
+    "webhook meta",
+    "atención al cliente redes sociales",
+    "chatbot whatsapp",
+    "fastapi"
+  ],
+  "lenguaje": "Python 3.12 (FastAPI, httpx, SQLite)",
+  "pruebas": "61 pasan, 0 fallan",
+  "horas_adaptar": "4-8",
+  "precio_sugerido_usd": "250-600"
+}

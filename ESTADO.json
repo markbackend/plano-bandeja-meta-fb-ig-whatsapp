@@ -1,0 +1,10 @@
+{
+  "estado": "listo",
+  "pruebas": "61 pasan, 0 fallan",
+  "resumen": "Bandeja única Messenger + Instagram + WhatsApp con FastAPI y SQLite: webhook único con firma y sin duplicados, respuestas por el canal correcto con ventana de 24 h, bandeja web con clave (asignar, notas, resolver), automáticas por reglas.json y avisos por webhook/Telegram. Demo con simulador de Meta verificada (demo.py --verificar da DEMO OK).",
+  "pendiente": [
+    "Verificar permisos, versión de la Graph API y códigos de error de ventana (2018278, 131047) en la documentación vigente de Meta antes del primer cliente",
+    "No probado contra Meta real (no hay cuentas): la primera adaptación tiene que incluir una prueba con la página y el número reales",
+    "Opcionales según cliente: plantillas de WhatsApp, etiqueta HUMAN_AGENT, envío de adjuntos, usuarios por agente, PostgreSQL"
+  ]
+}

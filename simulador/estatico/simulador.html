@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de clientes</title>
+<style>
+  :root { --borde:#d9dde3; --suave:#6b7280; --fb:#1877f2; --ig:#c13584; --wa:#128c4a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background:#f5f6f8; color:#1d2330; }
+  header { padding:12px 16px; background:#fff; border-bottom:1px solid var(--borde); }
+  header h1 { font-size:17px; margin:0 0 4px; } header p { margin:0; color:var(--suave); }
+  #columnas { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; padding:12px; }
+  .canal { background:#fff; border:1px solid var(--borde); border-radius:10px; display:flex; flex-direction:column; height:62vh; }
+  .canal h2 { margin:0; padding:8px 12px; font-size:15px; color:#fff; border-radius:10px 10px 0 0; }
+  .messenger h2 { background:var(--fb); } .instagram h2 { background:var(--ig); } .whatsapp h2 { background:var(--wa); }
+  .chat { flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:6px; }
+  .b { max-width:80%; padding:6px 9px; border-radius:9px; white-space:pre-wrap; word-wrap:break-word; }
+  .b.cliente { align-self:flex-end; background:#e7f0ff; } .b.respuesta { align-self:flex-start; background:#eef0f3; }
+  .b small { display:block; color:var(--suave); font-size:11px; }
+  form { display:grid; grid-template-columns:1fr auto; gap:6px; padding:8px; border-top:1px solid var(--borde); }
+  form input, form select { font:inherit; padding:6px; border:1px solid var(--borde); border-radius:6px; }
+  form .fila { grid-column:1 / -1; display:flex; gap:6px; align-items:center; color:var(--suave); font-size:12px; }
+  button { font:inherit; padding:6px 10px; border-radius:6px; border:1px solid #2563eb; background:#2563eb; color:#fff; cursor:pointer; }
+  #avisos { margin:0 12px 12px; background:#fff; border:1px solid var(--borde); border-radius:10px; padding:8px 12px; max-height:22vh; overflow-y:auto; }
+  #avisos h2 { font-size:14px; margin:0 0 6px; } #avisos div { font-size:13px; border-bottom:1px solid #eef0f3; padding:3px 0; white-space:pre-wrap; }
+  @media (max-width: 900px) { #columnas { grid-template-columns:1fr; } .canal { height:auto; min-height:300px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Simulador de clientes (Messenger, Instagram, WhatsApp)</h1>
+  <p>Escribí como si fueras el cliente. El mensaje se firma como lo hace Meta y llega al webhook de la bandeja.
+     Las respuestas de la bandeja (de un agente o automáticas) aparecen acá.</p>
+</header>
+<div id="columnas"></div>
+<section id="avisos"><h2>Avisos al equipo (webhook propio / Telegram)</h2></section>
+
+<script>
+"use strict";
+const TITULO = { messenger: "Facebook Messenger", instagram: "Instagram Direct", whatsapp: "WhatsApp" };
+const $ = (s, raiz = document) => raiz.querySelector(s);
+let ultimo = 0, contactos = [];
+
+function el(tag, clase, texto) { const e = document.createElement(tag); if (clase) e.className = clase; if (texto != null) e.textContent = texto; return e; }
+
+function columna(c) {
+  const col = el("section", "canal " + c.canal); col.dataset.canal = c.canal;
+  col.appendChild(el("h2", "", TITULO[c.canal]));
+  col.appendChild(el("div", "chat"));
+  const f = el("form");
+  const contacto = el("input"); contacto.name = "contacto"; contacto.value = c.id; contacto.title = "ID del cliente (PSID, IGSID o número)";
+  const texto = el("input"); texto.name = "texto"; texto.placeholder = "Mensaje del cliente…"; texto.style.gridColumn = "1 / 2";
+  const boton = el("button", "", "Enviar");
+  const fila = el("div", "fila");
+  const horas = el("select"); horas.name = "horas";
+  for (const [v, t] of [["0", "ahora"], ["30", "hace 30 h (fuera de las 24 h)"]]) { const o = el("option", "", t); o.value = v; horas.appendChild(o); }
+  fila.append("Cliente:", contacto, "Fecha:", horas);
+  f.append(fila, texto, boton);
+  f.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (!texto.value.trim()) return;
+    boton.disabled = true;
+    try {
+      const r = await fetch("/api/simular", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ canal: c.canal, contacto_id: contacto.value.trim(), texto: texto.value, horas_atras: Number(horas.value),
+                               nombre: contacto.value.trim() === c.id ? c.nombre : null }) });
+      const d = await r.json();
+      if (!r.ok) alert(d.detail || "Error"); else if (d.webhook_status !== 200) alert("La bandeja respondió " + d.webhook_status + ": " + d.webhook_respuesta);
+      texto.value = "";
+    } finally { boton.disabled = false; actualizar(); }
+  });
+  col.appendChild(f);
+  return col;
+}
+
+async function actualizar() {
+  const d = await (await fetch("/api/estado?desde=" + ultimo)).json();
+  if (!contactos.length) { contactos = d.contactos; for (const c of contactos) $("#columnas").appendChild(columna(c)); }
+  for (const r of d.registros) {
+    ultimo = Math.max(ultimo, r.n);
+    if (r.tipo === "aviso") { $("#avisos").appendChild(el("div", "", `[${r.medio}] ${r.texto}`)); continue; }
+    const chat = $(`.canal[data-canal="${r.canal}"] .chat`); if (!chat) continue;
+    const b = el("div", "b " + r.tipo, r.texto);
+    b.appendChild(el("small", "", (r.tipo === "cliente" ? "cliente " : "bandeja → ") + r.contacto_id + " · " + new Date(r.fecha).toLocaleTimeString()));
+    chat.appendChild(b); chat.scrollTop = chat.scrollHeight;
+  }
+}
+actualizar(); setInterval(() => actualizar().catch(() => {}), 1500);
+</script>
+</body>
+</html>

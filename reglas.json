@@ -1,0 +1,40 @@
+{
+  "_ayuda": "Respuestas automáticas. Se puede editar con la bandeja andando: se relee sola. 'texto' puede ser un texto para todos los canales o un objeto por canal (messenger, instagram, whatsapp, todos). dias: 0=lunes ... 6=domingo.",
+  "zona_horaria": "America/Argentina/Buenos_Aires",
+  "horario": {"dias": [0, 1, 2, 3, 4, 5], "desde": "09:00", "hasta": "19:00"},
+
+  "bienvenida": {
+    "activa": true,
+    "texto": {
+      "todos": "Hola, gracias por escribirnos. En un rato te responde alguien del equipo.",
+      "whatsapp": "Hola, gracias por escribirnos por WhatsApp. En un rato te responde alguien del equipo."
+    }
+  },
+
+  "fuera_de_horario": {
+    "activa": true,
+    "repetir_cada_horas": 12,
+    "texto": "Ahora estamos fuera de horario (lunes a sábado de 9 a 19). Te respondemos apenas volvamos."
+  },
+
+  "palabras_clave": [
+    {
+      "palabras": ["horario", "horarios", "abren", "atienden"],
+      "respuesta": "Atendemos de lunes a sábado de 9 a 19 h.",
+      "canales": ["todos"]
+    },
+    {
+      "palabras": ["envio", "envios", "envían", "mandan"],
+      "respuesta": "Hacemos envíos a todo el país. Pasanos tu código postal y te decimos el costo.",
+      "canales": ["todos"]
+    },
+    {
+      "palabras": ["precio", "precios", "cuanto sale", "cuánto cuesta"],
+      "respuesta": {
+        "todos": "Te pasamos la lista de precios en un momento.",
+        "instagram": "Te pasamos los precios por acá en un momento."
+      },
+      "canales": ["messenger", "instagram", "whatsapp"]
+    }
+  ]
+}

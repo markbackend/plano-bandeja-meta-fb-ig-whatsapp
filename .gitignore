@@ -1,0 +1,21 @@
+# Configuración con claves
+.env
+.env.*
+!.env.example
+
+# Entornos y dependencias
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Bases de datos y salidas
+datos/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.log
+salidas/
